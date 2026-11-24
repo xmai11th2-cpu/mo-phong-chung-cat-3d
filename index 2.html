@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#071b2b">
+<title>Phương pháp chưng cất | Mô phỏng 3D</title>
+<style>
+:root{--bg:#071827;--panel:#10283a;--panel2:#143247;--line:rgba(166,220,239,.18);--cyan:#67e4ed;--blue:#58aef5;--mint:#85e5c0;--text:#edf8ff;--muted:#a8c2d2;--gold:#ffc66d}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at 50% -20%,#17405a 0,#091e30 42%,#061421 100%);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;line-height:1.6}
+a{color:inherit;text-decoration:none}.wrap{width:min(1180px,calc(100% - 36px));margin:auto}
+header{padding:24px 0 18px;border-bottom:1px solid var(--line);background:rgba(4,17,28,.55);backdrop-filter:blur(12px)}
+.topline{display:flex;justify-content:space-between;align-items:center;gap:16px;color:var(--cyan);font-size:.78rem;letter-spacing:.15em;text-transform:uppercase;font-weight:800}
+.brand{display:flex;align-items:center;gap:10px}.brandmark{width:34px;height:34px;border:1px solid #6ee5ec;border-radius:11px;display:grid;place-items:center;box-shadow:0 0 22px #44d8e744}
+h1{font-size:clamp(2rem,5vw,3.7rem);line-height:1.06;letter-spacing:-.045em;margin:26px 0 12px}.gradient{background:linear-gradient(90deg,#f3fcff,#7de8ee 50%,#78baff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{max-width:720px;color:var(--muted);font-size:1.05rem;margin:0 0 22px}.author{color:#7fa6bb;font-size:.88rem}
+nav{display:flex;gap:9px;flex-wrap:wrap;margin-top:24px}nav a{font-size:.88rem;color:#c3dbe8;border:1px solid var(--line);padding:8px 13px;border-radius:99px;background:#ffffff08}nav a:hover{border-color:var(--cyan);color:white}
+section{padding:54px 0;border-bottom:1px solid var(--line)}.eyebrow{color:var(--cyan);font-size:.76rem;letter-spacing:.17em;font-weight:800;text-transform:uppercase}.section-title{font-size:clamp(1.55rem,3vw,2.35rem);letter-spacing:-.035em;margin:7px 0 10px}.section-desc{color:var(--muted);max-width:760px;margin:0 0 25px}
+.glass{background:linear-gradient(145deg,#15364bdf,#0b2031eF);border:1px solid var(--line);border-radius:22px;box-shadow:0 18px 55px #0003}
+.principle{padding:24px;display:grid;grid-template-columns:1.4fr .8fr;gap:24px;align-items:center}.principle p{color:#c2d7e3;margin:8px 0}.formula{border:1px solid #68dfe733;background:#67e4ed0c;border-radius:16px;padding:18px;text-align:center}.formula strong{display:block;font-size:1.25rem;color:var(--cyan)}.formula span{font-size:.83rem;color:var(--muted)}
+.sim-layout{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(270px,.8fr);gap:16px;align-items:stretch}
+.scene-card{overflow:hidden;position:relative;min-height:520px;background:radial-gradient(ellipse at 50% 45%,#1b4a60 0,#0c263b 55%,#071827 100%);border-radius:22px;border:1px solid #83d9e72c}
+#scene{width:100%;height:520px;display:block}.scene-label{position:absolute;left:18px;top:16px;background:#061725b8;border:1px solid var(--line);border-radius:10px;padding:8px 12px;color:#bfeaf3;font-size:.78rem;backdrop-filter:blur(8px)}.scene-hint{position:absolute;right:16px;bottom:13px;color:#a7c6d4;font-size:.75rem;background:#061725a8;padding:6px 10px;border-radius:8px}
+.side{padding:20px;display:flex;flex-direction:column;gap:15px}.statusline{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:.85rem}.state{color:var(--mint);font-weight:800}.temp{font-size:2.6rem;font-weight:850;letter-spacing:-.06em}.temp small{font-size:.9rem;color:var(--muted);letter-spacing:0}.meter{height:8px;border-radius:20px;background:#ffffff16;overflow:hidden}.meter i{display:block;height:100%;width:0;background:linear-gradient(90deg,#5bb6f5,#7ce6df);border-radius:20px;transition:width .3s}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:9px}.btn{border:1px solid #73dbe455;border-radius:12px;padding:11px 12px;color:#eafaff;background:#17445a;cursor:pointer;font-weight:750;font-size:.88rem;transition:.2s}.btn:hover{filter:brightness(1.18);transform:translateY(-1px)}.btn.primary{background:linear-gradient(120deg,#168da5,#2769ad);border-color:#73e7ed}.btn.ghost{background:#ffffff09;border-color:var(--line)}.btn.wide{grid-column:1/-1}
+.control{display:flex;flex-direction:column;gap:6px;color:var(--muted);font-size:.83rem}.control input{width:100%;accent-color:#64dfe7}
+.readout{padding:12px;border-radius:13px;background:#ffffff08;border:1px solid var(--line);font-size:.86rem;color:#c4dce8;min-height:64px}
+.phase-list{display:grid;gap:8px}.phase{display:flex;gap:10px;align-items:flex-start;color:#91adbd;font-size:.82rem}.phase b{display:grid;place-items:center;flex:none;width:23px;height:23px;border-radius:50%;background:#ffffff12;color:#a9c9d8}.phase.active{color:#e9fbff}.phase.active b{background:#1d8295;color:white;box-shadow:0 0 14px #5be3e855}
+.note{color:#91adbd;font-size:.78rem}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.step,.tool{padding:18px}.num{color:var(--cyan);font-weight:900;font-size:.8rem;letter-spacing:.12em}.step h3,.tool h3{margin:8px 0 6px;font-size:1.05rem}.step p,.tool p{margin:0;color:var(--muted);font-size:.9rem}.tools{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.tool-icon{font-size:1.7rem}.tool{min-height:155px}
+.quiz{padding:22px}.question{padding:17px 0;border-bottom:1px solid var(--line)}.question:last-of-type{border:0}.question h3{font-size:1rem;margin:0 0 12px}.answers{display:grid;gap:8px}.answer{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:11px;background:#ffffff06;color:#c9dce7;cursor:pointer}.answer:hover{border-color:#6bdce4}.answer input{accent-color:#64dfe7;margin-top:5px}.answer.correct{border-color:#62d6a4;background:#62d6a411}.answer.wrong{border-color:#ff8b8b;background:#ff8b8b11}.result{margin-top:14px;padding:14px;border-radius:12px;background:#ffffff09;color:#c8dce8;display:none}.result.show{display:block}.conclusion{padding:24px;border-left:3px solid var(--cyan)}.conclusion p{color:#c2d7e3;margin-bottom:0}
+footer{padding:28px 0 40px;color:#7f9fb1;font-size:.82rem;text-align:center}
+@media(max-width:850px){.sim-layout{grid-template-columns:1fr}.side{display:grid;grid-template-columns:1fr 1fr}.side .phase-list,.side .readout,.side .controls{grid-column:1/-1}.steps{grid-template-columns:repeat(2,1fr)}.tools{grid-template-columns:repeat(2,1fr)}.principle{grid-template-columns:1fr}}
+@media(max-width:560px){.wrap{width:min(100% - 24px,1180px)}section{padding:40px 0}.scene-card{min-height:380px}#scene{height:380px}.side{display:flex}.steps,.tools{grid-template-columns:1fr 1fr}.topline{font-size:.65rem}.brandmark{width:29px;height:29px}.quiz{padding:14px}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+ <div class="topline"><div class="brand"><span class="brandmark">⚗</span> HÓA HỌC 11 · BÀI 11</div><span>HỌC KÌ I</span></div>
+ <h1><span class="gradient">Phương pháp chưng cất</span></h1>
+ <p class="lead">Mô phỏng quá trình tách nước khỏi dung dịch nước muối bằng sự bay hơi và ngưng tụ — trực quan hóa bộ dụng cụ trong không gian 3D.</p>
+ <div class="author">✦ Sản phẩm học tập của Xuân Mai · 11A4</div>
+ <nav><a href="#tong-quan">Tổng quan</a><a href="#mo-phong">Quan sát thí nghiệm</a><a href="#dung-cu">Dụng cụ</a><a href="#kiem-chung">Phiếu kiểm chứng</a><a href="#ket-luan">Kết luận</a></nav>
+</div></header>
+<main class="wrap">
+<section id="tong-quan"><div class="eyebrow">01 / Nguyên lý</div><h2 class="section-title">Chưng cất hoạt động như thế nào?</h2>
+<div class="glass principle"><div><p>Chưng cất là phương pháp tách các chất dựa trên sự khác nhau về nhiệt độ sôi. Trong mô hình này, nước bay hơi khỏi dung dịch nước muối, sau đó được làm lạnh để ngưng tụ thành chất lỏng và thu vào bình hứng. Muối ở lại trong bình đun.</p><p class="note">Lưu ý: Đây là mô phỏng học tập. Không tự tiến hành thí nghiệm đun nóng nếu không có giáo viên hướng dẫn và thiết bị phòng thí nghiệm phù hợp.</p></div><div class="formula"><strong>Bay hơi → Ngưng tụ</strong><span>Nước được thu lại · Muối ở trong bình đun</span></div></div>
+</section>
+<section id="mo-phong"><div class="eyebrow">02 / Quan sát trực quan</div><h2 class="section-title">Mô phỏng bộ dụng cụ chưng cất 3D</h2><p class="section-desc">Nhấn “Bắt đầu đun” để quan sát hơi nước di chuyển qua ống sinh hàn, ngưng tụ và chảy về bình hứng. Kéo để xoay góc nhìn, cuộn để phóng to/thu nhỏ.</p>
+<div class="sim-layout"><div class="scene-card"><div class="scene-label">MÔ HÌNH 3D TƯƠNG TÁC · CHƯNG CẤT NƯỚC MUỐI</div><canvas id="scene"></canvas><div class="scene-hint">Kéo để xoay · Cuộn để zoom</div></div>
+<aside class="glass side"><div><div class="statusline"><span>TRẠNG THÁI</span><span class="state" id="state">ĐANG NGHỈ</span></div><div class="temp"><span id="temp">25</span><small> °C</small></div><div class="meter"><i id="heatbar"></i></div></div>
+<div class="controls"><button class="btn primary" id="start">▶ Bắt đầu đun</button><button class="btn ghost" id="pause">Ⅱ Tạm dừng</button><button class="btn ghost wide" id="reset">↺ Đặt lại</button><button class="btn ghost wide" id="cool">❄ Tắt nước làm lạnh</button></div>
+<label class="control">Tốc độ mô phỏng: <b><span id="speedval">1.0</span>×</b><input id="speed" type="range" min=".5" max="2" step=".1" value="1"></label>
+<div class="readout" id="readout">Hệ thống đang ở trạng thái nghỉ. Hãy bắt đầu đun để quan sát.</div>
+<div class="phase-list"><div class="phase active" id="p1"><b>1</b><span><strong>Đun nóng hỗn hợp</strong><br>Nước trong bình đun nhận nhiệt và dần chuyển thành hơi.</span></div><div class="phase" id="p2"><b>2</b><span><strong>Hơi đi qua ống dẫn</strong><br>Hơi nước di chuyển từ bình đun sang ống sinh hàn.</span></div><div class="phase" id="p3"><b>3</b><span><strong>Làm lạnh – ngưng tụ</strong><br>Nước làm lạnh đi vào từ đầu thấp và ra ở đầu cao.</span></div><div class="phase" id="p4"><b>4</b><span><strong>Thu chất lỏng</strong><br>Nước ngưng tụ chảy vào bình hứng; muối ở lại bình đun.</span></div></div>
+<div class="note">Mô hình minh họa nguyên lý, không thay thế thí nghiệm thực tế.</div></aside></div></section>
+<section><div class="eyebrow">Diễn biến</div><h2 class="section-title">Bốn giai đoạn của quá trình</h2><div class="steps">
+<div class="glass step"><div class="num">GIAI ĐOẠN 01</div><h3>Đun nóng</h3><p>Nhiệt truyền vào dung dịch nước muối, làm nhiệt độ tăng dần.</p></div>
+<div class="glass step"><div class="num">GIAI ĐOẠN 02</div><h3>Hóa hơi</h3><p>Nước đạt điều kiện sôi và chuyển thành hơi; muối không bay hơi theo.</p></div>
+<div class="glass step"><div class="num">GIAI ĐOẠN 03</div><h3>Ngưng tụ</h3><p>Hơi nước đi qua ống sinh hàn, truyền nhiệt cho dòng nước làm lạnh.</p></div>
+<div class="glass step"><div class="num">GIAI ĐOẠN 04</div><h3>Thu nước cất</h3><p>Nước lỏng chảy vào bình hứng, phần lớn muối còn lại trong bình đun.</p></div>
+</div></section>
+<section id="dung-cu"><div class="eyebrow">03 / Nhận diện thiết bị</div><h2 class="section-title">Dụng cụ và vai trò</h2><p class="section-desc">Mỗi bộ phận đảm nhiệm một chức năng riêng để hơi nước được dẫn đi, làm lạnh và thu hồi.</p>
+<div class="tools">
+<div class="glass tool"><div class="tool-icon">⚗️</div><h3>Bình đun</h3><p>Chứa hỗn hợp cần tách; được đun nóng để nước chuyển thành hơi.</p></div>
+<div class="glass tool"><div class="tool-icon">🌡️</div><h3>Nhiệt kế</h3><p>Theo dõi nhiệt độ hơi ở khu vực đầu bình chưng cất.</p></div>
+<div class="glass tool"><div class="tool-icon">〰️</div><h3>Ống dẫn hơi</h3><p>Dẫn hơi từ bình đun sang ống sinh hàn.</p></div>
+<div class="glass tool"><div class="tool-icon">❄️</div><h3>Ống sinh hàn</h3><p>Làm lạnh hơi để hơi ngưng tụ trở lại thành chất lỏng.</p></div>
+<div class="glass tool"><div class="tool-icon">💧</div><h3>Nước làm lạnh</h3><p>Đi vào ở đầu thấp và thoát ra ở đầu cao của ống sinh hàn.</p></div>
+<div class="glass tool"><div class="tool-icon">🧪</div><h3>Bình hứng</h3><p>Thu chất lỏng sau khi ngưng tụ; trong ví dụ này là nước cất.</p></div>
+</div></section>
+<section id="kiem-chung"><div class="eyebrow">04 / Phiếu kiểm chứng</div><h2 class="section-title">Em đã quan sát đúng chưa?</h2><p class="section-desc">Chọn đáp án phù hợp cho mỗi câu, sau đó nhấn “Kiểm tra kết quả”.</p>
+<div class="glass quiz" id="quiz">
+<div class="question"><h3>1. Trong thí nghiệm chưng cất nước muối, chất nào bay hơi trước?</h3><div class="answers"><label class="answer"><input type="radio" name="q1" value="a"> Muối ăn</label><label class="answer"><input type="radio" name="q1" value="b"> Nước</label><label class="answer"><input type="radio" name="q1" value="c"> Cả muối và nước cùng bay hơi như nhau</label></div></div>
+<div class="question"><h3>2. Nước làm lạnh nên đi vào ống sinh hàn theo chiều nào?</h3><div class="answers"><label class="answer"><input type="radio" name="q2" value="a"> Từ đầu thấp lên đầu cao</label><label class="answer"><input type="radio" name="q2" value="b"> Từ đầu cao xuống đầu thấp</label><label class="answer"><input type="radio" name="q2" value="c"> Không cần cho nước làm lạnh lưu thông</label></div></div>
+<div class="question"><h3>3. Quá trình chuyển hơi nước thành nước lỏng trong ống sinh hàn gọi là gì?</h3><div class="answers"><label class="answer"><input type="radio" name="q3" value="a"> Nóng chảy</label><label class="answer"><input type="radio" name="q3" value="b"> Đông đặc</label><label class="answer"><input type="radio" name="q3" value="c"> Ngưng tụ</label></div></div>
+<div class="question"><h3>4. Sau quá trình chưng cất, muối chủ yếu nằm ở đâu?</h3><div class="answers"><label class="answer"><input type="radio" name="q4" value="a"> Trong bình hứng</label><label class="answer"><input type="radio" name="q4" value="b"> Trong bình đun</label><label class="answer"><input type="radio" name="q4" value="c"> Trong ống sinh hàn</label></div></div>
+<button class="btn primary" id="check">✓ Kiểm tra kết quả</button> <button class="btn ghost" id="retry">Làm lại</button><div class="result" id="result"></div>
+</div></section>
+<section id="ket-luan"><div class="eyebrow">05 / Tổng kết</div><h2 class="section-title">Kết luận thí nghiệm</h2><div class="glass conclusion"><p>Chưng cất tách nước ra khỏi dung dịch nước muối nhờ sự bay hơi của nước và sự ngưng tụ của hơi nước. Nước được thu ở bình hứng, còn muối không bay hơi trong điều kiện thí nghiệm nên còn lại trong bình đun. Như vậy, sự khác nhau về tính bay hơi và nhiệt độ sôi của các chất là cơ sở của phương pháp chưng cất.</p></div></section>
+</main><footer><div class="wrap">THÍ NGHIỆM MÔ PHỎNG HÓA HỌC 11 · Sản phẩm của Xuân Mai · Lớp 11A4</div></footer>
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+import {OrbitControls} from 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/controls/OrbitControls.js';
+const canvas=document.querySelector('#scene'),scene=new THREE.Scene();scene.fog=new THREE.Fog(0x0b263a,12,28);
+const camera=new THREE.PerspectiveCamera(36,1,.1,100);camera.position.set(8,6.2,10);
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.25;
+const controls=new OrbitControls(camera,canvas);controls.enableDamping=true;controls.target.set(0,1.5,0);controls.minDistance=6;controls.maxDistance=19;controls.maxPolarAngle=Math.PI*.49;
+scene.add(new THREE.HemisphereLight(0xbdefff,0x183044,2));const key=new THREE.DirectionalLight(0xffffff,2.7);key.position.set(4,8,6);scene.add(key);const rim=new THREE.PointLight(0x45d8ed,32,14);rim.position.set(-3,4,-2);scene.add(rim);
+const mat=(color,roughness=.3,metalness=.05,transparent=false,opacity=1)=>new THREE.MeshStandardMaterial({color,roughness,metalness,transparent,opacity,side:THREE.DoubleSide});
+const glass=new THREE.MeshPhysicalMaterial({color:0x8bddeb,metalness:0,roughness:.08,transmission:.82,thickness:.25,transparent:true,opacity:.38,side:THREE.DoubleSide});
+const liquid=mat(0x31b9d3,.18,.05,true,.78),salt=mat(0xe9f3f2,.8),steel=mat(0x9cb9c7,.25,.72),dark=mat(0x142c3b,.3,.4),copper=mat(0xe5a65c,.25,.65),blue=mat(0x4bbfe9,.2,.25,true,.72);
+function add(mesh){scene.add(mesh);return mesh}
+function cyl(a,b,r1,r2,m,seg=48){const v=new THREE.Vector3().subVectors(b,a),mesh=new THREE.Mesh(new THREE.CylinderGeometry(r2,r1,v.length(),seg,1,true),m);mesh.position.copy(a).add(b).multiplyScalar(.5);mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),v.normalize());return add(mesh)}
+function sphere(x,y,z,r,m,scale){let o=add(new THREE.Mesh(new THREE.SphereGeometry(r,32,24),m));o.position.set(x,y,z);if(scale)o.scale.set(...scale);return o}
+function tube(points,r,m){let curve=new THREE.CatmullRomCurve3(points.map(p=>new THREE.Vector3(...p)));return add(new THREE.Mesh(new THREE.TubeGeometry(curve,80,r,12,false),m))}
+function label(txt,x,y,z){const c=document.createElement('canvas'),ctx=c.getContext('2d');c.width=512;c.height=100;ctx.fillStyle='rgba(5,20,32,.78)';ctx.strokeStyle='rgba(110,224,237,.6)';ctx.lineWidth=3;round(ctx,8,8,496,84,18);ctx.fill();ctx.stroke();ctx.font='bold  thirtypx sans-serif';ctx.font='bold 30px sans-serif';ctx.fillStyle='#eafaff';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(txt,256,50);let tex=new THREE.CanvasTexture(c);let sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,depthWrite:false}));sp.position.set(x,y,z);sp.scale.set(2.2,.43,1);add(sp)}
+function round(c,x,y,w,h,r){c.beginPath();c.roundRect(x,y,w,h,r)}
+// floor and stand
+let floor=add(new THREE.Mesh(new THREE.CylinderGeometry(5.5,5.5,.12,80),mat(0x102e42,.45,.3)));floor.position.y=-.12;
+let grid=new THREE.GridHelper(12,24,0x2d7287,0x174052);grid.position.y=-.045;add(grid);
+cyl(new THREE.Vector3(-3.2,.05,0),new THREE.Vector3(-3.2,3.7,0),.055,.055,steel);
+cyl(new THREE.Vector3(-3.2,3.2,0),new THREE.Vector3(1.7,3.2,0),.045,.045,steel);
+for(let x of [-3.2,1.7]){let clamp=add(new THREE.Mesh(new THREE.TorusGeometry(.13,.035,10,28),copper));clamp.position.set(x,3.2,0);clamp.rotation.y=Math.PI/2}
+// boiling flask body and neck
+sphere(-2,1.05,0,.94,glass,[1,1.05,1]);cyl(new THREE.Vector3(-2,1.8,0),new THREE.Vector3(-2,2.65,0),.28,.25,glass);
+let flaskLiquid=sphere(-2,.66,0,.72,liquid,[1,.55,1]);let saltBits=[];for(let i=0;i<26;i++){let a=Math.random()*Math.PI*2,r=Math.random()*.48;saltBits.push(sphere(-2+Math.cos(a)*r,.25+Math.random()*.12,Math.sin(a)*r,.035,salt))}
+let burner=add(new THREE.Mesh(new THREE.CylinderGeometry(.48,.58,.22,40),dark));burner.position.set(-2,.02,0);let flame=sphere(-2,.3,0,.25,mat(0x3abff5,.2,0,true,.8),[.65,1.7,.65]);
+cyl(new THREE.Vector3(-2,0.14,0),new THREE.Vector3(-2,.22,0),.13,.13,copper);
+// thermometer
+cyl(new THREE.Vector3(-2.18,2.1,.22),new THREE.Vector3(-2.18,3.05,.22),.035,.035,steel);sphere(-2.18,2.12,.22,.08,mat(0xff6b78));cyl(new THREE.Vector3(-2.18,2.15,.22),new THREE.Vector3(-2.18,2.85,.22),.012,.012,mat(0xff6878));
+// vapor pipe rising then condenser sloping
+tube([[-1.75,2.35,0],[-1.2,2.65,0],[-.7,2.75,0],[-.3,2.72,0]],.09,steel);
+const condA=new THREE.Vector3(-.3,2.72,0),condB=new THREE.Vector3(2.45,1.55,0);cyl(condA,condB,.28,.28,glass);cyl(condA,condB,.12,.12,steel);
+const axis=new THREE.Vector3().subVectors(condB,condA).normalize();const perp=new THREE.Vector3(-axis.y,axis.x,0).normalize();
+for(let i=-4;i<=4;i++){let t=i/4;let center=condA.clone().lerp(condB,(t+1)/2);let p1=center.clone().addScaledVector(perp,.31),p2=center.clone().addScaledVector(perp,-.31);cyl(p1,p2,.025,.025,steel)}
+// water inlet/outlet hoses, connected lower/upper jacket
+tube([[-.15,2.28,-.32],[-.65,1.75,-.55],[-.65,1.15,-.55]],.055,blue);
+tube([[2.25,1.9,.32],[2.95,2.35,.55],[2.95,2.9,.55]],.055,blue);
+// receiver and stand
+cyl(new THREE.Vector3(2.42,1.55,0),new THREE.Vector3(3.0,1.05,0),.075,.075,steel);
+sphere(3.05,.62,0,.47,glass,[.85,1.05,.85]);cyl(new THREE.Vector3(3.05,1.02,0),new THREE.Vector3(3.05,1.42,0),.17,.15,glass);
+let collected=sphere(3.05,.39,0,.34,liquid,[.85,.35,.85]);
+let stand=add(new THREE.Mesh(new THREE.CylinderGeometry(.55,.55,.09,40),dark));stand.position.set(3.05,.05,0);
+// labels
+label('BÌNH ĐUN',-2,.0,1.35);label('ỐNG SINH HÀN',.95,3.45,.3);label('BÌNH HỨNG',3.05,0,1.0);
+// vapor particles and condensate
+const particles=[];const vaporMat=new THREE.MeshBasicMaterial({color:0xbaf8ff,transparent:true,opacity:.85});
+for(let i=0;i<34;i++){let p=add(new THREE.Mesh(new THREE.SphereGeometry(.045,10,8),vaporMat));p.visible=false;particles.push(p)}
+const drops=[];for(let i=0;i<12;i++){let d=sphere(0,0,0,.035,blue);d.visible=false;drops.push(d)}
+let running=false,cooling=true,progress=0,speed=1,last=0;
+const $=id=>document.getElementById(id);
+$('start').onclick=()=>{running=true;$('state').textContent='ĐANG ĐUN';$('readout').textContent='Nhiệt đang truyền vào bình đun. Quan sát hơi nước hình thành và đi về phía ống sinh hàn.'};
+$('pause').onclick=()=>{running=false;$('state').textContent='TẠM DỪNG';$('readout').textContent='Mô phỏng đã tạm dừng. Nhấn “Bắt đầu đun” để tiếp tục.'};
+$('reset').onclick=()=>{running=false;progress=0;$('state').textContent='ĐANG NGHỈ';$('temp').textContent='25';$('heatbar').style.width='0%';$('readout').textContent='Hệ thống đang ở trạng thái nghỉ. Hãy bắt đầu đun để quan sát.';flaskLiquid.scale.y=.55;flaskLiquid.position.y=.66;collected.scale.y=.35;collected.position.y=.39;particles.forEach(p=>p.visible=false);drops.forEach(d=>d.visible=false);updatePhase()};
+$('cool').onclick=()=>{cooling=!cooling;$('cool').textContent=cooling?'❄ Tắt nước làm lạnh':'❄ Bật nước làm lạnh';$('readout').textContent=cooling?'Dòng nước làm lạnh đang lưu thông từ đầu thấp lên đầu cao.':'Đã tắt dòng nước làm lạnh; hiệu quả ngưng tụ giảm.'};
+$('speed').oninput=e=>{speed=+e.target.value;$('speedval').textContent=speed.toFixed(1)};
+function updatePhase(){let n=progress<.25?1:progress<.52?2:progress<.78?3:4;for(let i=1;i<=4;i++)$('p'+i).classList.toggle('active',i===n)}
+function resize(){let w=canvas.clientWidth,h=canvas.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}new ResizeObserver(resize).observe(canvas);resize();
+function animate(t){requestAnimationFrame(animate);let dt=Math.min((t-last)/1000||0,.04);last=t;if(running){progress=Math.min(1,progress+dt*speed*.055);let temp=25+Math.round(75*Math.min(progress/.5,1));$('temp').textContent=temp;$('heatbar').style.width=(progress*100)+'%';flaskLiquid.scale.y=.55+Math.sin(t*.006)*.012;flame.scale.y=1.5+Math.sin(t*.012)*.25;$('state').textContent=progress>=1?'HOÀN TẤT':'ĐANG ĐUN';if(progress<.25)$('readout').textContent='Dung dịch đang nóng lên. Các bọt khí bắt đầu xuất hiện trong bình đun.';else if(progress<.52)$('readout').textContent='Nước sôi và hóa hơi. Hơi nước đi qua ống dẫn về phía ống sinh hàn.';else if(progress<.78)$('readout').textContent=cooling?'Hơi nước được làm lạnh trong ống sinh hàn và ngưng tụ thành giọt nước.':'Nước làm lạnh đang tắt; quá trình ngưng tụ diễn ra kém hiệu quả.';else $('readout').textContent='Nước ngưng tụ chảy vào bình hứng. Muối vẫn ở lại trong bình đun.';if(progress>=1){running=false;$('readout').textContent='Hoàn tất mô phỏng: nước cất được thu ở bình hứng, muối còn lại trong bình đun.'}}
+updatePhase();let active=running&&progress>.18;particles.forEach((p,i)=>{p.visible=active&&progress<.95;let q=((t*.00013*speed+i/particles.length)%1);let path;if(q<.3){let k=q/.3;path=[-2+1.2*k,2.35+.35*k,0]}else{let k=(q-.3)/.7;path=[-.8+3.1*k,2.7-1.1*k,0]}p.position.set(...path);p.position.y+=Math.sin(t*.003+i)*.045});drops.forEach((d,i)=>{d.visible=running&&cooling&&progress>.55;let q=(t*.00022*speed+i/12)%1;let v=condA.clone().lerp(condB,q);d.position.copy(v).add(new THREE.Vector3(0,-.05,0))});flame.visible=progress<1; if(!running){particles.forEach(p=>p.visible=false);drops.forEach(d=>d.visible=false)}updatePhase();controls.update();renderer.render(scene,camera)}
+requestAnimationFrame(animate);
+</script>
+<script>
+const answers={q1:'b',q2:'a',q3:'c',q4:'b'};
+document.getElementById('check').addEventListener('click',()=>{let score=0,done=0;document.querySelectorAll('.question').forEach((q,i)=>{let name='q'+(i+1),chosen=q.querySelector('input:checked');q.querySelectorAll('.answer').forEach(a=>{a.classList.remove('correct','wrong');let inp=a.querySelector('input');if(inp.value===answers[name])a.classList.add('correct');if(chosen&&inp===chosen&&inp.value!==answers[name])a.classList.add('wrong')});if(chosen){done++;if(chosen.value===answers[name])score++}});let r=document.getElementById('result');r.classList.add('show');if(done<4)r.innerHTML=`Bạn đã trả lời ${done}/4 câu. Hãy hoàn thành các câu còn lại rồi kiểm tra lại nhé.`;else r.innerHTML=`<strong>Kết quả: ${score}/4 câu đúng.</strong><br>${score===4?'Xuất sắc! Bạn đã nắm vững nguyên lý chưng cất.':score>=2?'Khá tốt! Hãy xem lại các đáp án được tô sáng để củng cố kiến thức.':'Bạn hãy quan sát lại mô phỏng và thử sức lần nữa nhé.'}`});
+document.getElementById('retry').addEventListener('click',()=>{document.querySelectorAll('.question input').forEach(i=>i.checked=false);document.querySelectorAll('.answer').forEach(a=>a.classList.remove('correct','wrong'));document.getElementById('result').classList.remove('show');});
+</script>
+</body></html>
